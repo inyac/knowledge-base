@@ -4,21 +4,25 @@ namespace App\Http\Controllers;
 
 use App\Article;
 use Illuminate\Http\Request;
-use Ramsey\Uuid;
+use App\Services\ArticleService;
 
 class ArticleController extends Controller
 {
-    /**
+    protected $articlesService;
+
+    public function __construct(ArticleService $articlesService)
+    {
+        $this->articlesService = $articlesService;
+    }
+
+  /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
     public function index()
     {
-        $articles = Article::all()->sortByDesc('created_at')
-                                  ->values()
-                                  ->all();
-
+        $articles = $this->articlesService->all();
 
         return view('index', compact('articles'));
     }
@@ -47,14 +51,10 @@ class ArticleController extends Controller
           'author' => 'required|string',
           'body' => 'required|string'
         ]);
-        $article = new Article();
-        $article->id = Uuid\Uuid::uuid4()->toString();
-        $article->title = $request->input('title');
-        $article->author = $request->input('author');
-        $article->body = $request->input('body');
-        $article->save();
-
-        return redirect("/articles/$article->id");
+        $article = $this->articlesService->make($request->input('title'),
+                                                $request->input('author'),
+                                                $request->input('body'));
+        return redirect()->route('show', ['article' => $article->id]);
     }
 
     /**
@@ -94,29 +94,29 @@ class ArticleController extends Controller
           'author' => 'required|string',
           'body' => 'required|string'
         ]);
+        $this->articlesService->update($article,
+                                $request->input('title'),
+                                $request->input('author'),
+                                $request->input('body'));
 
-        $article->title = $request->input('title');
-        $article->author = $request->input('author');
-        $article->body = $request->input('body');
-        $article->save();
-
-        return redirect("/articles/$article->id");
+        return redirect()->route('show', ['article' => $article->id]);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  Article  $article
-     * @return \Illuminate\Http\Response
-     */
+  /**
+   * Remove the specified resource from storage.
+   *
+   * @param  Article $article
+   * @return \Illuminate\Http\Response
+   *
+   */
     public function destroy(Article $article)
     {
         try {
-          $article->delete();
+          $this->articlesService->delete($article);
         } catch (\Exception $e) {
-          return redirect("/articles/$article->id");
+          return redirect()->route('show', ['article' => $article->id]);
         }
 
-        return redirect('/');
+        return redirect()->route('home');
     }
 }

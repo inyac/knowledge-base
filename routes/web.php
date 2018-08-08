@@ -11,9 +11,9 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('', 'ArticleController@index');
+Route::get('', 'ArticleController@index')->name('home');
 Route::get('/articles/create', 'ArticleController@create');
-Route::get( '/articles/{article}', 'ArticleController@show');
+Route::get( '/articles/{article}', 'ArticleController@show')->name('show');
 Route::get('/articles/{article}/delete', 'ArticleController@destroy');
 Route::post('/articles', 'ArticleController@store');
 Route::get('/articles/{article}/edit', 'ArticleController@edit');
