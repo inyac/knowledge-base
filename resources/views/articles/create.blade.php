@@ -1,4 +1,4 @@
-@extends('master')
+@extends('layout.master')
 
 @section('title', 'Create Article')
 
@@ -10,10 +10,6 @@
             <input type="text" class="form-control" style="height: 55px" placeholder="Title" name="title">
         </div>
 
-        <div class="form-group">
-            <label>Author</label>
-            <input type="text" class="form-control" style="height: 55px" placeholder="Author" name="author">
-        </div>
 
         <div class="form-group">
             <label>Body</label>

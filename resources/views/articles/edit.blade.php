@@ -1,4 +1,4 @@
-@extends('master')
+@extends('layout.master')
 
 @section('title', 'Edit Page')
 
@@ -12,11 +12,6 @@
         </div>
 
         <div class="form-group">
-            <label>Author</label>
-            <input type="text" class="form-control" style="height: 55px" placeholder="Author" name="author" value="{{$article->author}}">
-        </div>
-
-        <div class="form-group">
             <label>Body</label>
             <textarea class="form-control" name="body" style="min-height: 200px">{{$article->body}}</textarea>
         </div>
@@ -24,4 +19,5 @@
         <div class="row">
             <input type="submit" class="btn btn-outline-success" style="width: 150px; margin-left: auto; margin-right: auto;">
         </div>
+    </form>
 @endsection

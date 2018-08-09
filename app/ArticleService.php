@@ -1,8 +1,7 @@
 <?php
 namespace App\Services;
 use App\Article;
-
-
+use App\User;
 
 class ArticleService {
 
@@ -10,22 +9,27 @@ class ArticleService {
       return Article::all()->sortByDesc('created_at')
                             ->values()
                             ->all();
-    }
+  }
 
-    public function make(string $title, string $author, string $body): Article {
+  public function getForUser($user): array {
+      return $user->articles->sortByDesc('created_at')
+                            ->values()
+                            ->all();
+  }
+
+    public function make($user, string $title, string $body): Article {
       $article = new Article();
       $article->title = $title;
-      $article->author = $author;
       $article->body = $body;
-      $article->save();
+      $user->articles()->save($article);
 
       return $article;
     }
 
-    public function update(Article $article, string $title, string $author, string $body){
+    public function update(Article $article, string $title, string $body){
       $article->title = $title;
-      $article->author = $author;
       $article->body = $body;
+
       $article->save();
     }
 

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Article;
 use Illuminate\Http\Request;
 use App\Services\ArticleService;
+use Illuminate\Support\Facades\Auth;
 
 class ArticleController extends Controller
 {
@@ -13,6 +14,7 @@ class ArticleController extends Controller
     public function __construct(ArticleService $articlesService)
     {
         $this->articlesService = $articlesService;
+        $this->middleware('auth')->except(['index', 'show']);
     }
 
   /**
@@ -24,7 +26,7 @@ class ArticleController extends Controller
     {
         $articles = $this->articlesService->all();
 
-        return view('index', compact('articles'));
+        return view('articles.index', compact('articles'));
     }
 
     /**
@@ -34,7 +36,7 @@ class ArticleController extends Controller
      */
     public function create()
     {
-        return view('create');
+        return view('articles.create');
     }
 
   /**
@@ -48,11 +50,10 @@ class ArticleController extends Controller
     {
         $this->validate($request, [
           'title' => 'required|string',
-          'author' => 'required|string',
           'body' => 'required|string'
         ]);
-        $article = $this->articlesService->make($request->input('title'),
-                                                $request->input('author'),
+        $article = $this->articlesService->make(Auth::user(),
+                                                $request->input('title'),
                                                 $request->input('body'));
         return redirect()->route('show', ['article' => $article->id]);
     }
@@ -65,7 +66,7 @@ class ArticleController extends Controller
      */
     public function show(Article $article)
     {
-        return view('show', compact('article'));
+        return view('articles.show', compact('article'));
     }
 
     /**
@@ -76,8 +77,10 @@ class ArticleController extends Controller
      */
     public function edit(Article $article)
     {
+        if(Auth::user() == $article->user) {
+          return view('articles.edit', compact('article'));
+        }
 
-        return view('edit', compact('article'));
     }
 
     /**
@@ -91,12 +94,10 @@ class ArticleController extends Controller
     {
         $this->validate($request, [
           'title' => 'required|string',
-          'author' => 'required|string',
           'body' => 'required|string'
         ]);
         $this->articlesService->update($article,
                                 $request->input('title'),
-                                $request->input('author'),
                                 $request->input('body'));
 
         return redirect()->route('show', ['article' => $article->id]);
@@ -112,7 +113,9 @@ class ArticleController extends Controller
     public function destroy(Article $article)
     {
         try {
-          $this->articlesService->delete($article);
+          if(Auth::user() == $article->user) {
+            $this->articlesService->delete($article);
+          }
         } catch (\Exception $e) {
           return redirect()->route('show', ['article' => $article->id]);
         }
